@@ -36,6 +36,9 @@ def main():
                 # Output to .txt file in documents folder
                 # Each .txt file is a separate webpage
                 outputPath = 'documents/' + str(docID)
+                if not os.path.exists('documents'):
+                    os.makedirs('documents')
+                    
                 with open(outputPath,'w+') as doc:
                     try:
                         # Top of the text file will have the actual URL, followed by the tokenized HTML content
