@@ -5,13 +5,15 @@ from nltk.tokenize import RegexpTokenizer
 from pathlib import Path
 from collections import Counter
 from Index import Index, Indexer
+from sys import getsizeof
+import pickle
 
 # Make sure you have BeautifulSoup and NLTK installed
 
 def main():
     docID = 0
     print('Starting...')
-
+    
     # THE INDEX
     index = Index()
     
@@ -43,19 +45,20 @@ def main():
                 word_freq = Counter(output)
 
                 # Convert word_freq list to indices 
-                indices = Indexer.to_indices(docID, getPath, word_freq)
+                indices = Indexer.to_indices(docID, word_freq)
                 index.add_indices(indices)
                 print('Indexed: ', docID)
                 
                 # Currently limiting the output to only 200 webpages, haven't let the full program run yet
-                if(docID == 200): 
-                    broke = True
-                    break
+                # if(docID == 200): 
+                #     broke = True
+                #     break
                 docID += 1
-        if broke: break
+        # if broke: break
 
-    with open('documents/index.txt','w') as f:
-        f.write(str(index))
+    with open('index.pickle','wb') as pkl_out:
+        print('Pickling index...')
+        pickle.dump(index, pkl_out)
     
     print('Finished.')
         
