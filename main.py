@@ -79,8 +79,8 @@ def invertedIndex(tokenDir):
 def main():
     print('Starting...')
     
-    #rootDir = 'C:\\Users\\bchau\\Desktop\\Projects\\developer\\DEV'
-    #getHTMLContent(rootDir)
+    rootDir = 'C:\\Users\\bchau\\Desktop\\Projects\\developer\\DEV'
+    getHTMLContent(rootDir)
     
     tokenDir = 'C:\\Users\\bchau\\Desktop\\Projects\\a3-indexer\\documents'
     indexedTokens = invertedIndex(tokenDir)
