@@ -1,5 +1,5 @@
 class Posting:
-    def __init__(self, docID: int, url: str, freq: int):
+    def __init__(self, docID: int, freq: int):
         self.id = docID
         # self.url = url
         self.freq = freq
