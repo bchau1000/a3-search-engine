@@ -134,3 +134,6 @@ DEV
 
 # documents folder
 documents
+
+# log files
+*.txt
