@@ -42,25 +42,6 @@ def main():
                 # get word frequency from the document
                 word_freq = Counter(output)
 
-
-
-                # # Output to .txt file in documents folder
-                # # Each .txt file is a separate webpage
-                # outputPath = 'documents/' + str(docID)
-                # if not os.path.exists('documents'):
-                #     os.makedirs('documents')
-                    
-                # with open(outputPath,'w+') as doc:
-                #     try:
-                #         # Top of the text file will have the actual URL, followed by the tokenized HTML content
-                #         doc.write(str(document['url']) + '\n')
-                #         doc.write(str(output))
-                #     except:
-                #         print('Error @:', docID)
-                
-                # print('Tokenized: ', docID)
-
-
                 # Convert word_freq list to indices 
                 indices = Indexer.to_indices(docID, getPath, word_freq)
                 index.add_indices(indices)
