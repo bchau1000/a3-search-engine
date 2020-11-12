@@ -2,16 +2,13 @@ import json
 import os
 from bs4 import BeautifulSoup
 from nltk.tokenize import RegexpTokenizer
+from nltk.stem import PorterStemmer 
 
 
 # Make sure you have BeautifulSoup and NLTK installed
-
-def main():
+        
+def getHTMLContent(rootDir):
     docID = 0
-    print('Starting...')
-    
-    # Set this to the path where you downloaded the developer JSON files
-    rootDir = 'C:\\Users\\bchau\\Desktop\\Projects\\developer\\DEV'
     
     # Traverse the directory tree starting at rootDir
     for dirName, subdirList, fileList in os.walk(rootDir):
@@ -33,28 +30,65 @@ def main():
                 tokenizer = RegexpTokenizer(r'\w+')
                 output = tokenizer.tokenize(soup.get_text().lower())
                 
+                with open('urlMap.txt','a+', encoding="utf-8") as urlMap:
+                    urlMap.write(str(document['url']) + ' ' + str(docID) + '\n')
+                
                 # Output to .txt file in documents folder
                 # Each .txt file is a separate webpage
-                outputPath = 'documents/' + str(docID)
+                outputPath = 'documents/' + str(docID) + '.txt'
                 if not os.path.exists('documents'):
                     os.makedirs('documents')
                     
-                with open(outputPath,'w+') as doc:
+                with open(outputPath,'a+', encoding="utf-8") as doc:
                     try:
-                        # Top of the text file will have the actual URL, followed by the tokenized HTML content
-                        doc.write(str(document['url']) + '\n')
-                        doc.write(str(output))
-                    except:
-                        print('Error @:', docID)
-                
-                print('Tokenized: ', docID)
-                
-                # Currently limiting the output to only 200 webpages, haven't let the full program run yet
-                if(docID == 200): 
-                    return
+                        tokens = " ".join(output)
+                        doc.write(str(tokens))
+                    except Exception as e:
+                        with open('errors.txt','a+') as errors:
+                            errors.write(str(docID) + ': ' + str(e) + '\n')
+                            
                 docID += 1
+
+def invertedIndex(tokenDir):
+    invertedIndex = dict()
+    
+    for dirName, subdirList, fileList in os.walk(tokenDir):
+        for fname in fileList:
+            getPath = dirName + '\\' + fname
+            with open(getPath, 'r', encoding="utf-8") as f:
+                tokenList = list()
+                for line in f:
+                    tokenList.extend(line.split())
                 
+                ps = PorterStemmer()
+                
+                for token in tokenList:
+                    docID = fname.replace('.txt', ' ')
+                    
+                    tokenStem = str(ps.stem(token))
+                    if tokenStem not in invertedIndex:
+                        invertedIndex[tokenStem] = list()
+                        invertedIndex[tokenStem].append(docID)
+                    else:
+                        invertedIndex[tokenStem].append(docID)
+                
+    return invertedIndex
+                    
+                
+
+def main():
+    print('Starting...')
+    
+    #rootDir = 'C:\\Users\\bchau\\Desktop\\Projects\\developer\\DEV'
+    #getHTMLContent(rootDir)
+    
+    tokenDir = 'C:\\Users\\bchau\\Desktop\\Projects\\a3-indexer\\documents'
+    indexedTokens = invertedIndex(tokenDir)
+    
+    with open('index.txt', '+a', encoding="utf-8") as f:
+        for key, value in indexedTokens.items():
+            f.write(str(key) + ': ' + str(value) + '\n\n')
+    
     print('Finished.')
-        
-            
+
 main()
