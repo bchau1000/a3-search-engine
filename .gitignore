@@ -127,3 +127,10 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# DEV folder
+DEV
+.DS_Store
+
+# documents folder
+documents
