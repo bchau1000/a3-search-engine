@@ -2,6 +2,7 @@ import json
 import os
 from bs4 import BeautifulSoup
 from nltk.tokenize import RegexpTokenizer
+from pathlib import Path
 
 
 # Make sure you have BeautifulSoup and NLTK installed
@@ -11,7 +12,7 @@ def main():
     print('Starting...')
     
     # Set this to the path where you downloaded the developer JSON files
-    rootDir = 'C:\\Users\\bchau\\Desktop\\Projects\\developer\\DEV'
+    rootDir = Path('DEV')
     
     # Traverse the directory tree starting at rootDir
     for dirName, subdirList, fileList in os.walk(rootDir):
@@ -19,7 +20,7 @@ def main():
         for fname in fileList:
             # Get the path to the JSON file:
             # e.g. C:\Users\bchau\Desktop\Projects\developer.zip\DEV\aiclub_ics_uci_edu
-            getPath = dirName + '\\' + fname
+            getPath = Path(dirName).joinpath(fname)
             
             # Open the JSON file with above path
             with open(getPath) as f:
