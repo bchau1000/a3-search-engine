@@ -27,7 +27,7 @@ class Index(defaultdict):
             for posting in postings:
                 self[token].add(posting)
 
-    # FOR DEBUGGIN PURPOSES
+    # FOR DEBUGGING PURPOSES
     # overrode __str__ to esaily print/write the index to console/file
     # NOTICE: URLs are not printed since it just clutters up the already massive index
     # returns a str representation of the index '{token: set(posting), ...}'
@@ -38,6 +38,6 @@ class Index(defaultdict):
             for posting in postings:
                 postings_str += f'{str(posting)},'
             postings_str += '}'
-            res += f'\'{token}\': {postings_str}'
+            res += f'\'{token}\': {postings_str},'
 
         return res + '}'
