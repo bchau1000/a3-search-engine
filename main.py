@@ -38,6 +38,8 @@ def main():
                 # Tokenize the content, exclude punctuation, alphanumeric only
                 tokenizer = RegexpTokenizer(r'\w+')
                 output = tokenizer.tokenize(soup.get_text().lower())
+
+                # get word frequency from the document
                 word_freq = Counter(output)
 
 
@@ -70,7 +72,7 @@ def main():
                     break
                 docID += 1
         if broke: break
-        
+
     with open('documents/index.txt','w') as f:
         f.write(str(index))
     
