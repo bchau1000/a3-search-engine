@@ -19,7 +19,7 @@ class Indexer:
 # This class is essentially a dict of dicts of id:Postings pairs
 # {token: {docID: Posting}}
 class Index(defaultdict):
-    def __init__(self, **kwargs):
+    def __init__(self, _=None, **kwargs):
         super().__init__(dict, **kwargs)
 
     # add the indices created from Indexer.to_indices() into this index
