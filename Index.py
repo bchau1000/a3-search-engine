@@ -7,11 +7,18 @@ class Indexer:
     # Converts a word frequency dictionary to a dictionary of
     # tokens mapped to a dict of Postings
     # {token: {docID: Posting}}
+    
+    # Given: n = number of times a given token appears in a document, N = number of tokens in a document
+        # tf = n/N
+    # tf-idf = tf * idf
     @staticmethod
-    def to_indices(docID: int, word_freq: {str: int}) -> {str: {Posting}}:
+    def to_indices(docID: int, word_count: float, idf_dict: dict, word_freq: {str: int}) -> {str: {Posting}}:
         res = defaultdict(dict)
+        
         for token, count in word_freq.items():
-            res[token][docID] = Posting(docID, count)
+            tf_idf = (count/word_count) * idf_dict.get(token)
+            
+            res[token][docID] = Posting(docID, tf_idf)
 
         return res
 
