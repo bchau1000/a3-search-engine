@@ -10,3 +10,4 @@ class Posting:
 
     def __repr__(self):
         return f'Posting({self.id}, {self.tf_idf})'
+        
