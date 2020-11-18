@@ -2,7 +2,7 @@ import os
 import pickle
 import math
 import json
-from collections import defaultdict, Counter
+from collections import defaultdict, Counter, OrderedDict
 from Posting import Posting
 from pathlib import Path
 from bs4 import BeautifulSoup
@@ -41,7 +41,7 @@ class Indexer:
         print('Starting...')
 
         # THE INDEX
-        index = defaultdict(dict) # Index()
+        index = defaultdict(OrderedDict) # Index()
         
         # Set this to the path where you downloaded the developer JSON files
         rootDir = Path(rootDir)
