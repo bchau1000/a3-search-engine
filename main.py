@@ -1,6 +1,6 @@
 import pickle
 from pathlib import Path
-from Index import Index, Indexer
+from Index import Indexer
 
 
 def main():
