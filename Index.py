@@ -41,7 +41,7 @@ class Indexer:
         print('Starting...')
 
         # THE INDEX
-        index = Index()
+        index = defaultdict(dict) # Index()
         
         # Set this to the path where you downloaded the developer JSON files
         rootDir = Path(rootDir)
@@ -78,7 +78,10 @@ class Indexer:
                     # Convert token_tf list to indices
                     # Pass idf_dict to calculate tf-idf of each token in the document
                     indices = Indexer.to_indices_posting_tf(docID, token_tf)
-                    index.add_indices_posting_tf(indices)
+                    # index.add_indices_posting_tf(indices)
+                    for token, postings in indices.items():
+                        for docID, posting in postings.items():
+                            index[token][docID] = posting
                     print('Indexed w/ tf: ', docID)
 
                     # Currently limiting the output to only 200 webpages, haven't let the full program run yet
@@ -104,35 +107,3 @@ class Indexer:
 
         return index
 
-
-    
-
-
-
-
-
-# Inherits from defaultdict for convenience in adding new entries
-# This class is essentially a dict of dicts of id:Postings pairs
-# {token: {docID: Posting}}
-class Index(defaultdict):
-    def __init__(self, _=None, **kwargs):
-        super().__init__(dict, **kwargs)
-
-    # add the indices created from Indexer.to_indices() into this index
-    def add_indices_posting_tf(self, indices: {str: Posting}) -> None:
-        for token, postings in indices.items():
-            for docID, posting in postings.items():
-                self[token][docID] = posting
-
-    # FOR DEBUGGING PURPOSES
-    # overrode __str__ to esaily print/write the index to console/file
-    # returns a str representation of the index '{token: {docID: Posting}, ...}'
-    def __str__(self):
-        res = '{'
-        for token, postings in self.items():
-            postings_str = '{'
-            for docID, posting in postings.items():
-                postings_str += f'{docID}: {str(posting)},'
-            res += f'\'{token}\': {postings_str},'
-
-        return res + '}'
