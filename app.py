@@ -8,6 +8,7 @@ from pathlib import Path
 from flask import Flask, jsonify, render_template, request, url_for
 app = Flask(__name__)
 
+# Comment this out if you're just testing for front-end changes
 print('Preloading Data. This may take a while...')
 url_list = pickle.load(open('urls.pickle', 'rb'))
 inverted_index = pickle.load(open('index.pickle', 'rb'))
