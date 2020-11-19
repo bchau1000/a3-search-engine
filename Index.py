@@ -42,6 +42,7 @@ class Indexer:
 
         # THE INDEX
         index = defaultdict(OrderedDict) # Index()
+        url_list = list()
         
         # Set this to the path where you downloaded the developer JSON files
         rootDir = Path(rootDir)
@@ -75,6 +76,8 @@ class Indexer:
                     for t, f in word_freq.items():
                         token_tf[t] = f / len(word_freq)
 
+                    url_list.append(document['url'])
+                    
                     # Convert token_tf list to indices
                     # Pass idf_dict to calculate tf-idf of each token in the document
                     indices = Indexer.to_indices_posting_tf(docID, token_tf)
@@ -102,6 +105,10 @@ class Indexer:
         with open('index.pickle', 'wb') as f:
             print("Pickling index...")
             pickle.dump(index, f)
+            
+        with open('urls.pickle', 'wb') as f:
+            print("Pickling urls...")
+            pickle.dump(url_list, f)
             
         print('Finished.')
 

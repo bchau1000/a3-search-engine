@@ -21,10 +21,10 @@ class QueryProcessor:
 
     # use doc ids to get urls 
     @staticmethod
-    def get_urls(corpus: [str], ids: [int]) -> [str]:
+    def get_urls(url_list: [str], ids: [int]) -> [str]:
         res = []
         for doc_id in ids:
-            res.append(corpus[doc_id])
+            res.append(url_list[doc_id])
 
         return res
 
