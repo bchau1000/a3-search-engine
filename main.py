@@ -25,7 +25,7 @@ def main():
         start_time = time.perf_counter()
         results = QueryProcessor.search(query, inverted_index, corpus)
         stop_time = time.perf_counter()
-        print(f'found {len(results)} in {stop_time - start_time}')
+        print(f'found {len(results)} in {stop_time - start_time}s')
         for i in range(5):
             print(results[i])
 
