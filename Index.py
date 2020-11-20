@@ -8,14 +8,12 @@ from pathlib import Path
 from bs4 import BeautifulSoup
 from nltk.tokenize import RegexpTokenizer
 from nltk.stem import PorterStemmer
+from sys import getsizeof
+from Tokenizer import Tokenizer
 
 
 # Static class which creates the indices to be added to the index
 class Indexer:
-
-    @staticmethod
-    def get_num_docs(rootDir):
-        return sum(len(fileList) for _, _, fileList in os.walk(rootDir))
 
     # Generates the indices to be added to the index
     # Converts a word frequency dictionary to a dictionary of
@@ -26,84 +24,165 @@ class Indexer:
         # tf = n/N
     # tf-idf = tf * idf
     @staticmethod
-    def to_indices_posting_tf(docID: int, token_tf: {str: int}) -> {str: {Posting}}:
+    def tokentf_to_postingtf(docID: int, token_tf: {str: int}) -> {str: {Posting}}:
         res = defaultdict(dict)
         
         for token, tf in token_tf.items():
             res[token][docID] = Posting(docID, tf)
 
         return res
+    
+    @staticmethod
+    def word_freq_to_tokentf(word_freq):
+        token_tf = defaultdict()
+        for t, f in word_freq.items():
+            token_tf[t] = f / len(word_freq)
+        return token_tf
 
     @staticmethod
+    def write_partial_to_disk(partial, partial_num):
+        print(f'writing partial index {partial_num} to file ')
+        filename = f'{partial_num}.txt'
+        with open(filename, 'w') as out: 
+            for token, postings in sorted(partial.items(), key=lambda x: x[0]):
+                out.write(f'{token} {postings}\n')
+        return filename
+
+    @staticmethod
+    def get_index_size(index) -> int:
+        size = 0
+        for token, postings in index.items():
+            size += getsizeof(postings)
+            for docid, posting in postings.items():
+                size += getsizeof(docid)
+                size += getsizeof(posting)
+        return size
+
+
+    # performs a multi-way merge on the created index partials
+    # and converts the tfs into tf-idf in the Posting object
+    @staticmethod
+    def merge_partials(partials: [str], ndocs: [int]) -> None:
+        # open files
+        partial_files = []
+        for filename in partials:
+            partial_files.append(open(filename))
+
+        # create list if (index, token, entry) tuples
+        unfinished_files = set()
+        ites = []
+        for i,file in enumerate(partial_files):
+            line = file.readline().strip()
+            token, postings = line.split(maxsplit=1)
+            postings = eval(postings)
+            ites.append([i, token, {token: postings}])
+            unfinished_files.add(i)  
+
+        out = open('index.txt', 'w')
+        nfinished = 0
+        while len(unfinished_files) > 0:
+            # merge into the least lexic token
+            sorted_ites = sorted(ites, key=lambda x: x[1])
+            least_i, least_token, least_entry = sorted_ites[0 + nfinished]
+            merged_dict = {}
+            for file_num in unfinished_files.copy():
+                i, token, entry = ites[file_num]
+                if token in least_entry:
+                    for _, postings in entry.items():
+                        for docid, posting in postings.items():
+                            merged_dict[docid] = posting
+                    line = partial_files[i].readline().strip()
+                    if len(line) == 0:
+                        unfinished_files.remove(i)
+                        nfinished += 1
+                    else:
+                        token, postings = line.split(maxsplit=1)
+                        postings = eval(postings)
+                        ites[i] = [i, token, {token: postings}]
+            if len(merged_dict) == 0:
+                merged_dict = least_entry[least_token]
+                line = partial_files[i].readline().strip()
+                if len(line) == 0:
+                    unfinished_files.remove(least_i)
+                    nfinished += 1
+                else:
+                    token, postings = line.split(maxsplit=1)
+                    postings = eval(postings)
+                    ites[i] = [i, token, {token: postings}]
+            
+            for _, posting in merged_dict.items():
+                posting.tf_idf *= math.log(ndocs / len(merged_dict))
+            
+            out.write(f'{least_token} {merged_dict}\n')
+            print('token merged:', least_token)
+        # cleanup
+        for file in partial_files:
+            file.close()
+        out.close()
+
+        
+    @staticmethod
     def create_index(rootDir):
+        MB_100 = 100000000
         docID = 0
+        partials = []
 
         print('Starting...')
 
-        # THE INDEX
-        index = defaultdict(OrderedDict) # Index()
-        
         # Set this to the path where you downloaded the developer JSON files
         rootDir = Path(rootDir)
         
-        stemmer = PorterStemmer()
+        # partial index
+        index = defaultdict(dict) 
+        partial_num = 0
+        curr_size = getsizeof(index)
         # Traverse the directory tree starting at rootDir
         for dirName, subdirList, fileList in os.walk(rootDir):
-            # broke = False
             # Grab JSON files
             for fname in fileList:
                 # Get the path to the JSON file:
                 # e.g. C:\Users\bchau\Desktop\Projects\developer.zip\DEV\aiclub_ics_uci_edu
-                getPath = Path(dirName).joinpath(fname)
+                path = Path(dirName).joinpath(fname)
                 
                 # Open the JSON file with above path
-                with open(getPath) as f:
+                with open(path) as f:
                     # Load JSON file
                     document = json.load(f)
                     
-                    # Grab the HTML content from the JSON file and parse with BeautifulSoup
-                    soup = BeautifulSoup(document['content'], 'html.parser')
-                    
-                    # Tokenize the content, exclude punctuation, alphanumeric only
-                    tokenizer = RegexpTokenizer(r'\w+')
-                    tokens = tokenizer.tokenize(soup.get_text().lower())
+                    stems = Tokenizer.tokenize_and_stem(document['content'])
                     
                     # stem tokens and get word frequency from the document
-                    word_freq = Counter([stemmer.stem(token) for token in tokens])
+                    word_freq = Tokenizer.get_word_freq(stems)
+
                     # get term frequencies 
-                    token_tf = defaultdict(float)
-                    for t, f in word_freq.items():
-                        token_tf[t] = f / len(word_freq)
+                    token_tf = Indexer.word_freq_to_tokentf(word_freq)
 
                     # Convert token_tf list to indices
-                    # Pass idf_dict to calculate tf-idf of each token in the document
-                    indices = Indexer.to_indices_posting_tf(docID, token_tf)
-                    # index.add_indices_posting_tf(indices)
-                    for token, postings in indices.items():
+                    entries = Indexer.tokentf_to_postingtf(docID, token_tf)
+                    # add to index and increment size counter appropriately
+                    for token, postings in entries.items():
                         for docID, posting in postings.items():
+                            if token not in index:
+                                curr_size += getsizeof({})
                             index[token][docID] = posting
+                            curr_size += getsizeof(docID)
+                            curr_size += getsizeof(posting)
+                            
                     print('Indexed w/ tf: ', docID)
 
-                    # Currently limiting the output to only 200 webpages, haven't let the full program run yet
-                    #if(docID == 200): 
-                    #    broke = True
-                    #    break
-                    docID += 1
-            #if broke: break
-        
-        # multiply each postings tf by idf
-        # to convert the tfs  to tf-idf
-        print('Converting tf to tf-idf...')
-        ndocs = Indexer.get_num_docs(rootDir)
-        for token, postings in index.items():
-            for docID, posting  in postings.items():
-                posting.tf_idf *= math.log(ndocs / len(postings))
+                    # if index grows larger than 100 MB write it to disk
+                    if curr_size > MB_100:
+                        # append the name of the file that we wrote to to a list
+                        partials.append(Indexer.write_partial_to_disk(index, partial_num))
+                        partial_num += 1
+                        index.clear()
+                        curr_size = getsizeof(index)
 
-        with open('index.pickle', 'wb') as f:
-            print("Pickling index...")
-            pickle.dump(index, f)
+                    docID += 1
+        partials = [f'{i}.txt' for i in range(10)]
+        Indexer.merge_partials(partials, get_num_docs(rootDir))
             
         print('Finished.')
 
-        return index
-
+def get_num_docs(rootDir):
+    return sum(len(fileList) for _, _, fileList in os.walk(rootDir))
