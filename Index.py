@@ -2,7 +2,7 @@ import os
 import pickle
 import math
 import json
-from collections import defaultdict, Counter, OrderedDict
+from collections import defaultdict, Counter
 from Posting import Posting
 from pathlib import Path
 from bs4 import BeautifulSoup
@@ -179,9 +179,14 @@ class Indexer:
                         curr_size = getsizeof(index)
 
                     docID += 1
-        partials = [f'{i}.txt' for i in range(10)]
+
         Indexer.merge_partials(partials, get_num_docs(rootDir))
-            
+        
+        for filename in partials:
+            filePath = Path(filename)
+            if filePath.exists():
+                os.remove(filePath)
+
         print('Finished.')
 
 def get_num_docs(rootDir):
