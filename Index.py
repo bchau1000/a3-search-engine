@@ -186,3 +186,23 @@ class Indexer:
 
 def get_num_docs(rootDir):
     return sum(len(fileList) for _, _, fileList in os.walk(rootDir))
+
+def load_lexicon():
+    lexicon = {}
+    with open('index.txt') as f:
+        pos = 0
+        for line in f:
+            token = line.split(maxsplit=1)[0]
+            lexicon[token] = pos
+            pos += len(line)
+    return lexicon
+
+def load_url_lookup(rootDir):
+    lookup = []
+    for dirName, subdirList, fileList in os.walk(rootDir):
+        for fname in fileList:
+            path = Path(dirName).joinpath(fname)
+            with open(path) as f:
+                document = json.load(f)
+                lookup.append(document['url'])
+    return lookup
