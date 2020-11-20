@@ -3,6 +3,8 @@
 <head>
     <title>CS121 Search Engine</title>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    
+    <!-- Flask requires this specific syntax for including external js and css -->
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/results.css') }}"/>
 </head>
 <body>
@@ -11,6 +13,7 @@
 
 <p id="url_table"></p>
 
+<!-- Flask requires this specific syntax for including external js and css -->
 <script src="{{url_for('static', filename='js/results.js')}}"></script>
 
 </body>

@@ -2,12 +2,18 @@
 <html>
 <head>
     <title>CS121 Search Engine</title>
+
+    <!-- Flask requires this specific syntax for including external js and css -->
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/search.css') }}"/>
 </head>
 <body>
 
 <h1>CS121 Search Engine</h1>
 
+<!-- 
+    Defining the action as 'results' here will make the form redirect the page to /results 
+    Defining the name of the search bar as 'query' will make the form redirect the page to /results?query=input
+-->
 <form id="searchForm" action="results">
     <input id="searchBar" name="query" type="text">
     <button id="searchButton">Search</button>
