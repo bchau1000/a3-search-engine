@@ -5,7 +5,7 @@ from nltk.stem import PorterStemmer
 
 class QueryProcessor:
     @staticmethod
-    def boolean_retrieval(query: [str], lexicon: {str: int}) -> ([int], {str: {int: Posting}}):
+    def boolean_retrieval(query: {str}, lexicon: {str: int}) -> ([int], {str: {int: Posting}}):
         # get all posting ids associated with tokens in query
         postings_ids = []
         full_entries = {}
@@ -48,7 +48,7 @@ class QueryProcessor:
             stemmed = stemmer.stem(token)
             if stemmed in lexicon:
                 stemmed_tokens.append(stemmed)
-
+        stemmed_tokens = set(stemmed_tokens)
         ids, partial = QueryProcessor.boolean_retrieval(stemmed_tokens, lexicon)
         # accumulate tf_idf totals for each doc_id
         ids_total_tfidf = [(doc_id, sum(partial[token][doc_id].tf_idf for token in stemmed_tokens)) for doc_id in ids]
