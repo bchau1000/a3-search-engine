@@ -9,7 +9,7 @@ from flask import Flask, jsonify, render_template, request, url_for
 app = Flask(__name__)
 
 # Comment this out if you're just testing for front-end changes
-print('Preloading Data. This may take a while...')
+print('Preloading pickled data. This may take a while...')
 url_list = pickle.load(open('urls.pickle', 'rb'))
 inverted_index = pickle.load(open('index.pickle', 'rb'))
 print('Finished!')
@@ -32,7 +32,7 @@ def handle_results():
     print(f'found {len(results)} in {stop_time - start_time}')
 
     json_results = list()
-    
+
     for url in results[:5]:
         json_object = dict()
         json_object["url"] = str(url)
