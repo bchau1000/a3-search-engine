@@ -11,7 +11,12 @@ body {
   font-family: 'Roboto', sans-serif;
 }
 
-#results_header {
+.hide_link {
+  color: black;
+  text-decoration: none;
+}
+
+#header_container {
   padding: 10px;
   position: relative;
   text-align: center;
@@ -27,7 +32,6 @@ body {
   line-height: 150%;
   text-align: left;
 }
-
 
 input[type=text] {
   width: 50%;

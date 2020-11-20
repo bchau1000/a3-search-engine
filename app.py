@@ -60,4 +60,4 @@ def handle_results():
     return jsonify(json_array)
 
 if __name__ == "__main__":
-    app.run(use_reloader=False)
+    app.run(use_reloader=True)

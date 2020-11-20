@@ -5,12 +5,14 @@ function populate_page(response)
 {
     // Grab the search tokens to output: 
         // Results for 'search_tokens'
-    var search_tokens = query_string.substr(6).replace('+', ' ')
-    $('#results_header').append("'" + search_tokens + "'")
+    var search_tokens = query_string.substr(6).replaceAll('+', ' ');
+    $('#url_table').append('<h2 id="results_header">Results for \'' + search_tokens + '\'</h2>')
 
     // Parse the JSON array from response, list out the urls as links
     for(let i = 0; i < response.length; i++)
         $('#url_table').append('<a href="' + response[i]['url'] + '"> ' + response[i]['url'] + '</a>' + '<br>');
+
+    
 }
 
 $(document).ready(function(){

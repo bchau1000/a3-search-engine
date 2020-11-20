@@ -199,7 +199,7 @@ def load_lexicon():
         for line in f:
             token = line.split(maxsplit=1)[0]
             lexicon[token] = pos
-            pos += len(line) + 1
+            pos += len(line) + 1 if os.name != 'posix' else 0
     return lexicon
 
 def load_url_lookup(rootDir):
