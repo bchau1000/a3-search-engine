@@ -40,7 +40,7 @@ def main():
         results = QueryProcessor.search(query, lexicon, corpus)
         stop_time = time.perf_counter()
         print(f'found {len(results)} in {stop_time - start_time}s')
-        for i in range(5):
+        for i in range(min(len(results), 5)):
             print(results[i])
 
 if __name__ == "__main__":
