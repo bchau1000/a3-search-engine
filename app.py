@@ -4,14 +4,17 @@ import time
 from Index import Indexer
 from QueryProcessor import QueryProcessor
 from pathlib import Path
-
 from flask import Flask, jsonify, render_template, request, url_for
+
 app = Flask(__name__)
 
 # Comment this out if you're just testing for front-end changes
-print('Preloading pickled data. This may take a while...')
-url_list = pickle.load(open('urls.pickle', 'rb'))
-inverted_index = pickle.load(open('index.pickle', 'rb'))
+print('Preloading pickled data')
+with open('lexicon.pkl', 'rb') as f:
+    lexicon = pickle.load(f)
+with open('corpus.pkl', 'rb') as f:
+    corpus = pickle.load(f)
+
 print('Finished!')
 
 @app.route("/")
@@ -27,7 +30,7 @@ def handle_results():
     query = request.args.get('query')
 
     start_time = time.perf_counter()
-    results = QueryProcessor.search(query, inverted_index, url_list)
+    results = QueryProcessor.search(query, lexicon, corpus)
     stop_time = time.perf_counter()
     print(f'found {len(results)} in {stop_time - start_time}')
 
