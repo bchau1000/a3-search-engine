@@ -5,19 +5,28 @@
 
     <!-- Flask requires this specific syntax for including external js and css -->
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/search.css') }}"/>
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@500&display=swap" rel="stylesheet">
 </head>
 <body>
 
-<h1>CS121 Search Engine</h1>
+<div id="header_container">
 
-<!-- 
-    Defining the action as 'results' here will make the form redirect the page to /results 
+  <h1>CS121 Search Engine</h1>
+
+</div>
+
+
+<!--
+    Defining the action as 'results' here will make the form redirect the page to /results
     Defining the name of the search bar as 'query' will make the form redirect the page to /results?query=input
 -->
-<form id="searchForm" action="results">
-    <input id="searchBar" name="query" type="text">
-    <button id="searchButton">Search</button>
-</form>
+<div id="search_bar">
+  <form id="searchForm" action="results">
+      <input id="searchBar" name="query" type="text">
+      <button id="searchButton">Search</button>
+  </form>
+</div>
 
 </body>
 </html>
