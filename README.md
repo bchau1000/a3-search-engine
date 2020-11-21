@@ -1,5 +1,4 @@
 # a3-indexer
 
-To execute script just run main.py and it will create the index from the corpus.
-If there exists a index.pickle file in the current directory then it will instead attempt to unpickle that file to obtain an already created index.
-Assumes that the DEV directory is in the current working directory.
+To execute script just run main.py and it will create the index and auxiliary structures if the .txt and .pkl files do not already exist.
+Once the structures have been created the user will be prompted for a query.
