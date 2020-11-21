@@ -2,7 +2,6 @@ from Posting import Posting
 from nltk.tokenize import RegexpTokenizer
 from nltk.stem import PorterStemmer
 
-
 class QueryProcessor:
     @staticmethod
     def boolean_retrieval(query: {str}, lexicon: {str: int}) -> ([int], {str: {int: Posting}}):

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CS121 Search Engine</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+    <!-- Flask requires this specific syntax for including external js and css -->
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/results.css') }}">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@500&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div id="header_container">
+
+  <h1><a href='/' class='hide_link'>CS121 Search Engine</a></h1>
+  
+  
+</div>
+
+<div id="search_bar">
+  <form id="searchForm" action="results">
+      <input id="searchBar" name="query" type="text">
+      <button id="searchButton">Search</button>
+  </form>
+</div>
+
+<div id="results">
+  <p id="url_table">
+    
+  </p>
+</div>
+<!-- Flask requires this specific syntax for including external js and css -->
+<script src="{{url_for('static', filename='js/results.js')}}"></script>
+
+</body>
+</html>

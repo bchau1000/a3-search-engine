@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CS121 Search Engine</title>
+
+    <!-- Flask requires this specific syntax for including external js and css -->
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/search.css') }}"/>
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@500&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div id="header_container">
+  <h1><a href='/' class='hide_link'>CS121 Search Engine</a></h1>
+</div>
+
+
+<!--
+    Defining the action as 'results' here will make the form redirect the page to /results
+    Defining the name of the search bar as 'query' will make the form redirect the page to /results?query=input
+-->
+<div id="search_bar">
+  <form id="searchForm" action="results">
+      <input id="searchBar" name="query" type="text">
+      <button id="searchButton">Search</button>
+  </form>
+</div>
+
+</body>
+</html>
