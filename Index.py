@@ -25,6 +25,8 @@ class Indexer:
     # tf-idf = tf * idf
     @staticmethod
     def tokentf_to_postingtf(docID: int, token_tf: {str: int}) -> {str: {Posting}}:
+        """Creates a dict of {token: {docid: Posting}}. 
+           At this point, the Posting object only has the token frequency not tf-idf"""
         res = defaultdict(dict)
         
         for token, tf in token_tf.items():
@@ -34,6 +36,7 @@ class Indexer:
     
     @staticmethod
     def word_freq_to_tokentf(word_freq):
+        """Creates a dict of {token: tf}"""
         token_tf = defaultdict()
         for t, f in word_freq.items():
             token_tf[t] = f / len(word_freq)
@@ -41,23 +44,13 @@ class Indexer:
 
     @staticmethod
     def write_partial_to_disk(partial, partial_num):
+        """Writes a partial index to disk"""
         print(f'writing partial index {partial_num} to file ')
         filename = f'{partial_num}.txt'
         with open(filename, 'w') as out: 
             for token, postings in sorted(partial.items(), key=lambda x: x[0]):
                 out.write(f'{token} {postings}\n')
         return filename
-
-    @staticmethod
-    def get_index_size(index) -> int:
-        size = 0
-        for token, postings in index.items():
-            size += getsizeof(postings)
-            for docid, posting in postings.items():
-                size += getsizeof(docid)
-                size += getsizeof(posting)
-        return size
-
 
     # performs a multi-way merge on the created index partials
     # and converts the tfs into tf-idf in the Posting object
@@ -68,7 +61,10 @@ class Indexer:
         for filename in partials:
             partial_files.append(open(filename))
 
-        # create list if (index, token, entry) tuples
+        # create list of (index, token, entry) tuples
+        # of the first entry in each partial index
+        # these tuples contain all the necessary info
+        # to merge entries together
         unfinished_files = set()
         ites = []
         for i,file in enumerate(partial_files):
@@ -83,22 +79,37 @@ class Indexer:
         while len(unfinished_files) > 0:
             # merge into the least lexic token
             sorted_ites = sorted(ites, key=lambda x: x[1])
-            least_i, least_token, least_entry = sorted_ites[0 + nfinished]
+            # we don't do anything to the list of open files or list of ites when
+            # we finish a file
+            # so near the end when we sort, the least lexic token might be the token
+            # of a finished file.
+            # To get around this we just offset the index by the number of finished files to get
+            # the least lexic token of the unfinished files
+            least_i, least_token, least_entry = sorted_ites[0 + nfinished] 
+
             merged_dict = {}
+            # iterate through the set of unfinished files
             for file_num in unfinished_files.copy():
                 i, token, entry = ites[file_num]
+                # if the target token is in the entry
+                # i.e. if the token of this file is the least lexic token then merge it.
                 if token in least_entry:
+                    # add the partial entry to merged_dict
                     for _, postings in entry.items():
                         for docid, posting in postings.items():
                             merged_dict[docid] = posting
+                    # for that file that we just merged
+                    # read its next line and parse it into a tuple similarly to before
                     line = partial_files[i].readline().strip()
-                    if len(line) == 0:
+                    if len(line) == 0: # if the line is empty then the file is done
                         unfinished_files.remove(i)
                         nfinished += 1
-                    else:
+                    else: # create tuple and replace the ite in the
                         token, postings = line.split(maxsplit=1)
                         postings = eval(postings)
                         ites[i] = [i, token, {token: postings}]
+            # essentially does what is done at the end of the above for-loop
+            # takes care of edge case in which none of the other files had the token
             if len(merged_dict) == 0:
                 merged_dict = least_entry[least_token]
                 line = partial_files[i].readline().strip()
@@ -180,6 +191,7 @@ class Indexer:
 
                     docID += 1
 
+        # perform merge on partial indices
         Indexer.merge_partials(partials, get_num_docs(rootDir))
         
         for filename in partials:
@@ -193,6 +205,8 @@ def get_num_docs(rootDir):
     return sum(len(fileList) for _, _, fileList in os.walk(rootDir))
 
 def load_lexicon():
+    """Creates a dictionary which is an index of the index.
+       Used to quickly perform seeks on disk given a query word"""
     lexicon = {}
     with open('index.txt') as f:
         pos = 0
@@ -203,6 +217,7 @@ def load_lexicon():
     return lexicon
 
 def load_url_lookup(rootDir):
+    """Creates a list of all the documents' urls in the corpus"""
     lookup = []
     for dirName, subdirList, fileList in os.walk(rootDir):
         for fname in fileList:
