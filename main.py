@@ -4,7 +4,6 @@ import Index
 import time
 from QueryProcessor import QueryProcessor
 
-
 def main():
     rootDir = 'DEV'
     # if the index doesn't exist yet creat it!
@@ -21,6 +20,14 @@ def main():
     else:
         with open('lexicon.pkl', 'rb') as f:
             lexicon = pickle.load(f)
+    
+    if not Path('lexicon_revised.pkl').exists():
+        lexicon_rev = Index.load_lexicon()
+        with open('lexicon_revised.pkl', 'wb') as f:
+            pickle.dump(lexicon_rev, f)
+    else:
+        with open('lexicon_revised.pkl', 'rb') as f:
+            lexicon_rev = pickle.load(f)
 
     # corpus
     if not Path('corpus.pkl').exists():
@@ -30,14 +37,14 @@ def main():
     else:
         with open('corpus.pkl', 'rb') as f:
             corpus = pickle.load(f)
-    
+
     ##### DRIVER #####
     while True:
         query = input('Enter query (-1 to stop):')
         if query == '-1':
             break
         start_time = time.perf_counter()
-        results = QueryProcessor.search(query, lexicon, corpus)
+        results = QueryProcessor.search(query, lexicon_rev, corpus)
         stop_time = time.perf_counter()
         print(f'found {len(results)} in {stop_time - start_time}s')
         for i in range(min(len(results), 5)):
