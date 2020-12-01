@@ -10,7 +10,7 @@ app = Flask(__name__)
 
 # Preload required pickle data for the inverted index
 print('Preloading pickled data')
-with open('lexicon.pkl', 'rb') as f:
+with open('lexicon_revised.pkl', 'rb') as f:
     lexicon = pickle.load(f)
 with open('corpus.pkl', 'rb') as f:
     corpus = pickle.load(f)
