@@ -11,12 +11,23 @@ class QueryProcessor:
         with open('index.txt') as index:
             for word in query:
                 index.seek(lexicon[word])
-                _, postings = index.readline().strip().split(maxsplit=1)
-                postings = eval(postings)
-                postings_ids.append(set(docid for docid in postings.keys()))
+                
+                parsed_posting = index.readline().split()[1:]
+                postings = dict()
+                id_set = set()
+            
+                for val in parsed_posting:
+                    pair = val.split(',')
+                    postings[int(pair[0])] = Posting(int(pair[0]), float(pair[1]))
+                    id_set.add(int(pair[0]))
+
+                postings_ids.append(set(id_set))
                 full_entries[word] = postings
         
         # merge: intersection of all sets of ids
+        if len(postings_ids) == 0:
+            return [], {}
+        postings_ids.sort()
         res = postings_ids.pop(0)
         for posting in postings_ids:
             res = res.intersection(posting)
