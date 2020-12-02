@@ -1,7 +1,4 @@
-import os
-import pickle
-import math
-import json
+import os, pickle, math, json
 from collections import defaultdict, Counter
 from Posting import Posting
 from pathlib import Path
@@ -75,7 +72,6 @@ class Indexer:
             unfinished_files.add(i)  
 
         out = open('index.txt', 'w')
-        out2 = open('index_revised.txt', 'w')
         nfinished = 0
         while len(unfinished_files) > 0:
             # merge into the least lexic token
@@ -125,17 +121,16 @@ class Indexer:
             for _, posting in merged_dict.items():
                 posting.tf_idf *= math.log(ndocs / len(merged_dict))
             
-            out.write(f'{least_token} {merged_dict}\n')
-            out2.write(f'{least_token} ')
+            out.write(f'{least_token} ')
             for docId, posting in merged_dict.items():
-                out2.write(f'{posting.docid},{posting.tf_idf} ')
-            out2.write('\n')
+                out.write(f'{posting.docid},{posting.tf_idf} ')
+            out.write('\n')
+            
             print('token merged:', least_token)
         # cleanup
         for file in partial_files:
             file.close()
         out.close()
-        out2.close()
 
         
     @staticmethod

@@ -10,11 +10,13 @@ class QueryProcessor:
         full_entries = {}
         
         
-        with open('index_revised.txt') as index:
+        with open('index.txt') as index:
             for word in query:
                 index.seek(lexicon[word])
                 
+                # Tokenize the line containing our token/word using split(), skip the first entry with [1:] since we don't need the token/word itself
                 parsed_posting = index.readline().split()[1:]
+                
                 postings = dict()
                 id_set = set()
             
