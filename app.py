@@ -53,6 +53,9 @@ def handle_results():
         json_object["url"] = str(url)
         json_array.append(json_object)
 
+    json_object = dict()
+    json_object["time"] = (stop_time - start_time) * 1000
+    json_array.append(json_object)
     # Turn our JSON array into an actual JSON array using jsonify()
     # You can see the output format by adding a path to the url, eg.:
         # Original query is: http://127.0.0.1:5000/results?query=machine+learning
