@@ -194,7 +194,7 @@ class Indexer:
                             index.clear()
                             curr_size = getsizeof(index)
 
-                        docID += 1
+                    docID += 1
 
         # perform merge on partial indices
         Indexer.merge_partials(partials, get_num_docs(rootDir))
