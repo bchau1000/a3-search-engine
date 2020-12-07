@@ -7,7 +7,7 @@ from nltk.corpus import stopwords
 
 class QueryProcessor:
     @staticmethod
-    def boolean_retrieval(query: {str}, lexicon: {str: int}) -> ([int], {str: {int: Posting}}):
+    def boolean_retrieval(query: [str], lexicon: {str: int}) -> ([int], {str: {int: Posting}}):
         # get all posting ids associated with tokens in query
         postings_ids = []
         full_entries = {}
@@ -32,15 +32,18 @@ class QueryProcessor:
                 full_entries[word] = postings
         
         # merge: intersection of all sets of ids
-        res = postings_ids.pop()
+        res = postings_ids[0]
         for posting in postings_ids:
             res = res.intersection(posting)
 
-        while len(res) < 10:
-            sub_query = postings_ids.pop()
-            for posting in postings_ids:
-                sub_query = sub_query.intersection(posting)
+        postings_ids = sorted(postings_ids, key=lambda x: len(x))
+        iteration = 1
+        while len(res) < 10 and iteration < len(postings_ids):
+            sub_query = postings_ids[0]
+            for i in range(1, len(postings_ids) - iteration):
+                sub_query = sub_query.intersection(postings_ids[i])
             res = res.union(sub_query)
+            iteration += 1
         return res, full_entries
 
 
@@ -84,8 +87,14 @@ class QueryProcessor:
             stemmed = stemmer.stem(token)
             if stemmed in lexicon:
                 stemmed_tokens.append(stemmed)
-        stemmed_tokens = set(stemmed_tokens)
-        stemmed_tokens = QueryProcessor.check_stopwords(stemmed_tokens)
+        
+        considered_tokens_set = QueryProcessor.check_stopwords(set(stemmed_tokens))
+        i = 0
+        while i < len(stemmed_tokens):
+            if stemmed_tokens[i] not in considered_tokens_set:
+                stemmed_tokens.pop(i)
+                i -= 1
+            i += 1
         ids, partial = QueryProcessor.boolean_retrieval(stemmed_tokens, lexicon)
 
         # accumulate tf_idf totals for each doc_id
