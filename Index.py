@@ -163,34 +163,38 @@ class Indexer:
                     
                     stems = Tokenizer.tokenize_and_stem(document['content'])
                     
-                    # stem tokens and get word frequency from the document
-                    word_freq = Tokenizer.get_word_freq(stems)
+                    # if document is low info, output url to text file and skip indexing
+                    if len(stems) == 0:
+                        print('Low informational value document: '+ document['url'] + '\n')
+                    else:
+                        # stem tokens and get word frequency from the document
+                        word_freq = Tokenizer.get_word_freq(stems)
 
-                    # get term frequencies 
-                    token_tf = Indexer.word_freq_to_tokentf(word_freq)
+                        # get term frequencies 
+                        token_tf = Indexer.word_freq_to_tokentf(word_freq)
 
-                    # Convert token_tf list to indices
-                    entries = Indexer.tokentf_to_postingtf(docID, token_tf)
-                    # add to index and increment size counter appropriately
-                    for token, postings in entries.items():
-                        for docID, posting in postings.items():
-                            if token not in index:
-                                curr_size += getsizeof({})
-                            index[token][docID] = posting
-                            curr_size += getsizeof(docID)
-                            curr_size += getsizeof(posting)
-                            
-                    print('Indexed w/ tf: ', docID)
+                        # Convert token_tf list to indices
+                        entries = Indexer.tokentf_to_postingtf(docID, token_tf)
+                        # add to index and increment size counter appropriately
+                        for token, postings in entries.items():
+                            for docID, posting in postings.items():
+                                if token not in index:
+                                    curr_size += getsizeof({})
+                                index[token][docID] = posting
+                                curr_size += getsizeof(docID)
+                                curr_size += getsizeof(posting)
 
-                    # if index grows larger than 100 MB write it to disk
-                    if curr_size > MB_100:
-                        # append the name of the file that we wrote to to a list
-                        partials.append(Indexer.write_partial_to_disk(index, partial_num))
-                        partial_num += 1
-                        index.clear()
-                        curr_size = getsizeof(index)
+                        print('Indexed w/ tf: ', docID)
 
-                    docID += 1
+                        # if index grows larger than 100 MB write it to disk
+                        if curr_size > MB_100:
+                            # append the name of the file that we wrote to to a list
+                            partials.append(Indexer.write_partial_to_disk(index, partial_num))
+                            partial_num += 1
+                            index.clear()
+                            curr_size = getsizeof(index)
+
+                        docID += 1
 
         # perform merge on partial indices
         Indexer.merge_partials(partials, get_num_docs(rootDir))
