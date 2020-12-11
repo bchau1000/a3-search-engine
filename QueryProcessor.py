@@ -36,6 +36,10 @@ class QueryProcessor:
         for posting in postings_ids:
             res = res.intersection(posting)
 
+        # if we have too few results we can compute the intersections on fewer of the tokens
+        # we iteratively consider n-1/n, n-2/n... n-(n-1)/n until we have a satisfactory amount of results
+        # we consider those with lower document frequencies first as those rarer terms will 
+        # typically have more relevance to the query
         postings_ids = sorted(postings_ids, key=lambda x: len(x))
         iteration = 1
         while len(res) < 10 and iteration < len(postings_ids):
@@ -88,7 +92,9 @@ class QueryProcessor:
             if stemmed in lexicon:
                 stemmed_tokens.append(stemmed)
         
+        # remove stopd words if we can
         considered_tokens_set = QueryProcessor.check_stopwords(set(stemmed_tokens))
+        # remove tokens that are not considered
         i = 0
         while i < len(stemmed_tokens):
             if stemmed_tokens[i] not in considered_tokens_set:
